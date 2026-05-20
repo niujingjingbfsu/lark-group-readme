@@ -1,0 +1,8 @@
+# Groups to check daily for announcement updates.
+# One chat_id per line. Lines starting with # are ignored.
+# Optional comment after chat_id describes the group (for logs).
+#
+# To find chat_id: `lark-cli im +chat-search --query "<group name>" --as bot`
+# Then copy this file to groups.conf (which is gitignored).
+
+oc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # example group name
