@@ -65,9 +65,10 @@ Trigger: user explicitly says "给这群建个 ReadMe" / "建个 ReadMe" in the 
 
    **5a. Create the docx** (as bot):
    ```bash
-   lark-cli docs +create --title "<群名> · ReadMe" --markdown @/tmp/draft.md --as bot
+   cat /tmp/draft.md | lark-cli docs +create --title "<群名> · ReadMe" --markdown - --as bot
    ```
    Capture `data.doc_id` from the response.
+   Note: `--markdown @/path` rejects absolute paths — pipe via stdin (`--markdown -`) instead.
 
    **5b. Grant chat-level edit permission**:
    ```bash
@@ -121,7 +122,7 @@ Trigger: "把 X 写到 ReadMe", "更新 ReadMe", "把上周聊的整理进 ReadM
 
 6. **On click**:
    ```bash
-   lark-cli docs +update --doc <doc_id> --mode overwrite --markdown @/tmp/new.md --as bot
+   cat /tmp/new.md | lark-cli docs +update --doc <doc_id> --mode overwrite --markdown - --as bot
    ```
    `overwrite` mode replaces the whole document — fine for our use case (no comments/anchors to preserve in the typical ReadMe).
 
