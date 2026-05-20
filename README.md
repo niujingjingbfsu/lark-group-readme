@@ -4,8 +4,6 @@
 
 一个 Claude Code Skill 包，让 AI agent 把飞书群打理成项目的活档案：群里讨论的关键信息——决策、产出物、当前进展、待办——自动沉淀到一份挂在群 Tab 的飞书云文档里。这份文档随群里讨论的演进持续更新。
 
-> 🚧 **代码重构中**：本文档按目标形态写。当前代码里 skill 还叫 `lark-group-announcement`、cron 脚本还叫 `cron-announcement-check.sh`，正在重命名为 `lark-group-readme` / `cron-readme-check.sh`。功能等价，命名渐进。
-
 ---
 
 ## 我们想解决什么问题

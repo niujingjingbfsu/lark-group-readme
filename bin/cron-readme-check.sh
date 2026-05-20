@@ -1,8 +1,8 @@
 #!/bin/bash
-# Daily announcement-check: for each configured group, count yesterday's
-# meaningful messages; if active, send a card inviting the owner to draft an
-# announcement update. The card has a callback button that wakes Seraphina;
-# Seraphina does NOT auto-publish — drafts are previewed first.
+# Daily ReadMe-check: for each configured group, count yesterday's meaningful
+# messages; if active, send a card inviting the owner to draft a ReadMe update.
+# The card has a callback button that wakes the agent; the agent NEVER
+# auto-creates and NEVER auto-publishes — drafts are previewed first.
 
 set -u
 
@@ -12,7 +12,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 CONFIG="${LARK_SKILLS_CONFIG:-${SCRIPT_DIR}/groups.conf}"
 LOG_DIR="${LARK_SKILLS_LOG_DIR:-${REPO_ROOT}/log}"
-LOG="${LOG_DIR}/cron-announcement-check.log"
+LOG="${LOG_DIR}/cron-readme-check.log"
 LARK_CLI="${LARK_CLI:-$(command -v lark-cli || echo /usr/local/lib/node_modules/@larksuite/cli/bin/lark-cli)}"
 MIN_MSGS="${MIN_MSGS:-3}"
 
@@ -56,13 +56,13 @@ while IFS= read -r line; do
   card=$(cat <<EOF
 {
   "schema": "2.0",
-  "header": {"title": {"tag": "plain_text", "content": "📢 群公告每日检查"}, "template": "blue"},
+  "header": {"title": {"tag": "plain_text", "content": "📝 ReadMe 每日检查"}, "template": "blue"},
   "body": {"elements": [
-    {"tag": "markdown", "content": "过去 24 小时群里有 **${count} 条**对话。要不要让 Seraphina 看一眼，整理一份公告草稿给你？"},
+    {"tag": "markdown", "content": "过去 24 小时群里有 **${count} 条**对话。要不要让我看一眼，整理一份 ReadMe 更新草稿给你？\n\n_（如果群里还没有 ReadMe，我会礼貌地提示你先建一份——首次创建必须由你发起。）_"},
     {"tag": "hr"},
     {"tag": "column_set", "columns": [
       {"tag": "column", "elements": [{"tag": "button", "text": {"tag": "plain_text", "content": "👀 看看草稿"}, "type": "primary",
-        "behaviors": [{"type": "callback", "value": {"__claude_cb": true, "action": "daily_announcement_check"}}]}]},
+        "behaviors": [{"type": "callback", "value": {"__claude_cb": true, "action": "daily_readme_check"}}]}]},
       {"tag": "column", "elements": [{"tag": "button", "text": {"tag": "plain_text", "content": "今天不用"}, "type": "default",
         "behaviors": [{"type": "callback", "value": {"action": "skip"}}]}]}
     ]}

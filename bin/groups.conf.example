@@ -1,4 +1,4 @@
-# Groups to check daily for announcement updates.
+# Groups to check daily for ReadMe updates.
 # One chat_id per line. Lines starting with # are ignored.
 # Optional comment after chat_id describes the group (for logs).
 #

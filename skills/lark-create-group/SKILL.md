@@ -1,17 +1,17 @@
 ---
 name: lark-create-group
-description: Create a Lark/Feishu group chat, invite members, optionally seed an initial announcement. Invoke when the user asks to "拉一个群 / 建群 / 开个群 把 A、B 加进来聊 X" or similar.
+description: Create a Lark/Feishu group chat, invite members, optionally seed an initial ReadMe (delegating to `lark-group-readme`). Invoke when the user asks to "拉一个群 / 建群 / 开个群 把 A、B 加进来聊 X" or similar.
 ---
 
 # lark-create-group
 
-Creates a group chat via `lark-cli im +chat-create`, invites members, and optionally writes a starter announcement (delegating to the `lark-group-announcement` skill).
+Creates a group chat via `lark-cli im +chat-create`, invites members, sends a one-line opener, and (if the user asks) hands off to `lark-group-readme` to seed a project ReadMe.
 
 ## Required scopes (on the bot app)
 
 - `im:chat` — create chat + invite
 - `im:chat.members:create` — invite members (implicit in `im:chat`)
-- (Optional, only if seeding an announcement) `im:chat.announcement` + `im:chat.announcement:read`
+- (Optional, only if seeding a ReadMe) the scopes listed in `lark-group-readme/SKILL.md`
 
 ## Workflow
 
@@ -28,7 +28,7 @@ Creates a group chat via `lark-cli im +chat-create`, invites members, and option
    Returned `chat_id` is what subsequent calls need.
 4. **Verify membership** (optional but cheap):
    `lark-cli im chat.members --chat-id <chat_id> --as bot` — confirm members are present.
-5. **Seed announcement** (if user asked for it): hand off to `lark-group-announcement` with the requested content.
+5. **Seed ReadMe** (if user asked for it): hand off to `lark-group-readme` (Path A) with the requested content as initial context.
 
 ## UX
 
@@ -45,5 +45,5 @@ Creates a group chat via `lark-cli im +chat-create`, invites members, and option
 
 ## Anti-patterns
 
-- Don't create a group and immediately spam an announcement before the members can see/dismiss invitations.
+- Don't create a group and immediately seed a long ReadMe before the members can see/dismiss invitations. If seeding, send a short opener first; the ReadMe pass can wait until members are in.
 - Don't create groups silently — always echo back the group name, chat_id, and member roster so the user can sanity-check.
