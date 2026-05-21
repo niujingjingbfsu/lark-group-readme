@@ -84,8 +84,17 @@ Trigger: user explicitly says "给这群建个 ReadMe" / "建个 ReadMe" in the 
    lark-cli api POST /open-apis/im/v1/chats/<chat_id>/chat_tabs --as bot \
      --data '{"chat_tabs":[{"tab_name":"ReadMe","tab_type":"url","tab_content":{"url":"https://www.feishu.cn/docx/<doc_id>"}}]}'
    ```
+   The response contains the full tab list. Capture all `tab_id`s for step 5d.
 
-   **Rollback**: if 5b or 5c fails after 5a succeeded, delete the orphan docx:
+   **5d. Move ReadMe to the 2nd position** (right after the built-in `message` tab):
+   From the 5c response, build a `tab_ids` array in this order: `[<message tab_id>, <new ReadMe tab_id>, <every other tab_id in their original order>]`.
+   ```bash
+   lark-cli api POST /open-apis/im/v1/chats/<chat_id>/chat_tabs/sort_tabs --as bot \
+     --data '{"tab_ids":["<message>","<ReadMe>","<files_resources>","<doc_list>","..."]}'
+   ```
+   The `message` tab is built-in and always first; ReadMe sits at position 2 so it's the first non-built-in surface users see.
+
+   **Rollback**: if 5b/5c/5d fails after 5a succeeded, delete the orphan docx:
    ```bash
    lark-cli api DELETE /open-apis/drive/v1/files/<doc_id> --params '{"type":"docx"}' --as bot
    ```
