@@ -5,7 +5,7 @@ description: Maintain a "ReadMe" tab for a Lark/Feishu group — a living projec
 
 # lark-group-readme
 
-Every group's **ReadMe** is **a single Lark docx attached as a `url`-type chat tab** named `ReadMe`. The chat_tab points to the docx URL; the docx holds the content. Group members get `edit` permission via a chat-level permission grant.
+Every group's **ReadMe** is **a single Lark docx attached as a `doc`-type chat tab** named `ReadMe`. The chat_tab points to the docx URL; the docx holds the content. `doc` type renders the document **inline inside the Feishu client** (not as an external link). Group members get `edit` permission via a chat-level permission grant.
 
 ## Required scopes (on the bot app)
 
@@ -79,11 +79,12 @@ Trigger: user explicitly says "给这群建个 ReadMe" / "建个 ReadMe" in the 
    ```
    Without this, members will see the tab but can't open the docx.
 
-   **5c. Attach as chat tab**:
+   **5c. Attach as chat tab** (use `doc` type — renders inline in client):
    ```bash
    lark-cli api POST /open-apis/im/v1/chats/<chat_id>/chat_tabs --as bot \
-     --data '{"chat_tabs":[{"tab_name":"ReadMe","tab_type":"url","tab_content":{"url":"https://www.feishu.cn/docx/<doc_id>"}}]}'
+     --data '{"chat_tabs":[{"tab_name":"ReadMe","tab_type":"doc","tab_content":{"doc":"https://www.feishu.cn/docx/<doc_id>"}}]}'
    ```
+   **Critical**: `tab_content.doc` is a **plain URL string**, NOT a nested object like `{"url":"..."}` or `{"doc_token":"..."}` — those shapes both error with `9499 Invalid parameter type in json: doc`.
    The response contains the full tab list. Capture all `tab_id`s for step 5d.
 
    **5d. Move ReadMe to the 2nd position** (right after the built-in `message` tab):
@@ -180,7 +181,7 @@ Same shape with:
 
 | code | meaning | fix |
 |---|---|---|
-| `9499 Invalid parameter type in json: doc` | wrong tab_type schema | use `tab_type: "url"`, not `"doc"` |
+| `9499 Invalid parameter type in json: doc` | wrapped `doc` value in an object | `tab_content.doc` must be a plain URL string (`"doc":"https://..."`), not `{"url":"..."}` or `{"doc_token":"..."}` |
 | `99992402 member_type` validation | wrong member_type value | use `openchat`, not `chat` |
 | `99991672 Permission denied` | scopes not on the app | direct user to `dev-config/permission` |
 | docx readable to bot but not to chat members | chat-level grant skipped | re-run the drive `/permissions/.../members` POST in 5b |
@@ -190,5 +191,6 @@ Same shape with:
 - **Don't** auto-create a ReadMe just because cron found activity — first-time creation is owner-initiated only.
 - **Don't** push docx changes without the user clicking confirm. The ReadMe is visible to every chat member.
 - **Don't** create a second "ReadMe" tab — always `list_tabs` first.
-- **Don't** use `tab_type: "doc"` — the API rejects the obvious doc-URL shape. Use `url`.
+- **Don't** wrap the doc URL in an object for `tab_content.doc` — it's a plain string. `{"doc":"<url>"}` works; `{"doc":{"url":"<url>"}}` and `{"doc":{"doc_token":"<token>"}}` both error.
+- **Don't** fall back to `tab_type: "url"` — that renders as an external link (browser-style), not an inline doc panel. Use `doc`.
 - **Don't** forget step 5b (chat-level permission grant) — without it, the tab is broken from a member's POV.
